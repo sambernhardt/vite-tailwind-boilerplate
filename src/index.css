@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 body {
-  background-color: var(--color-neutral-950);
-  color: var(--color-neutral-50);
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-950);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--color-neutral-950);
+    color: var(--color-neutral-50);
+  }
 }
