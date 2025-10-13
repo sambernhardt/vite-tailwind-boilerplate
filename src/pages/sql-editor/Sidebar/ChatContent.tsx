@@ -1,4 +1,13 @@
-import { useCallback, useState } from "react";
+import {
+  Dispatch,
+  memo,
+  RefObject,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { IconPlus } from "@tabler/icons-react";
 import { ArrowUpIcon } from "lucide-react";
 import {
@@ -15,11 +24,13 @@ import {
 } from "@/components/ui/input-group";
 import GeneratingQueryMessageContent from "./GeneratingQueryMessageContent";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 type Message = {
   id: number;
   content: string;
   component?: "generating-query";
+  thinking?: boolean;
   role: "user" | "assistant" | "system";
 };
 
@@ -44,6 +55,34 @@ const defaultMessages: Message[] = [
     content: "Let me help you with that.",
     role: "assistant",
   },
+];
+
+const defaultMessagesWithFakeResponse: Message[] = [
+  ...defaultMessages,
+  {
+    id: 5,
+    content: "Thinking",
+    role: "system",
+    thinking: true,
+  },
+  {
+    id: 6,
+    content: "Analyzing the data",
+    role: "system",
+    thinking: true,
+  },
+  {
+    id: 7,
+    content: "Writing SQL",
+    role: "system",
+    component: "generating-query",
+  },
+  // {
+  //   id: 8,
+  //   content: "Validating query",
+  //   thinking: true,
+  //   role: "assistant",
+  // },
 ];
 
 const UserMessageWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -77,75 +116,152 @@ const SystemMessageWrapper = ({
   );
 };
 
-const UserMessage = ({ content }: { content: string }) => {
-  return (
-    <UserMessageWrapper>
-      <p className="text-[13px] px-3 py-2 rounded-lg bg-accent ">{content}</p>
-    </UserMessageWrapper>
-  );
-};
+const UserMessage = memo(
+  ({
+    content,
+    enableAnimationRef,
+  }: {
+    content: string;
+    enableAnimationRef: RefObject<boolean>;
+  }) => {
+    return (
+      <UserMessageWrapper>
+        <p
+          className={cn(
+            "text-[13px] px-3 py-2 rounded-lg bg-accent ",
+            enableAnimationRef.current && "fade-in-up"
+          )}
+        >
+          {content}
+        </p>
+      </UserMessageWrapper>
+    );
+  }
+);
 
-const AssistantMessage = ({ content }: { content: string }) => {
-  return (
-    <SystemMessageWrapper>
-      <p className="text-[13px]">{content}</p>
-    </SystemMessageWrapper>
-  );
-};
+const AssistantMessage = memo(
+  ({
+    content,
+    enableAnimationRef,
+  }: {
+    content: string;
+    enableAnimationRef: RefObject<boolean>;
+  }) => {
+    return (
+      <SystemMessageWrapper
+        className={cn(enableAnimationRef.current && "fade-in-up")}
+      >
+        <p className="text-[13px]">{content}</p>
+      </SystemMessageWrapper>
+    );
+  }
+);
 
-const SystemMessage = ({ content }: { content: string }) => {
-  return (
-    <SystemMessageWrapper>
-      <p className="text-[13px] text-muted-foreground">{content}</p>
-    </SystemMessageWrapper>
-  );
-};
+const SystemMessage = memo(
+  ({
+    content,
+    thinking,
+    enableAnimationRef,
+  }: {
+    content: string;
+    thinking?: boolean;
+    enableAnimationRef: RefObject<boolean>;
+  }) => {
+    return (
+      <SystemMessageWrapper
+        className={cn(enableAnimationRef.current && "fade-in-up")}
+      >
+        <div className="flex gap-2 items-center">
+          <p className="text-xs text-muted-foreground">{content}</p>
+          {thinking && <Spinner className="size-3" />}
+        </div>
+      </SystemMessageWrapper>
+    );
+  }
+);
 
-const GeneratingQueryMessage = ({ content }: { content: string }) => {
-  return (
-    <SystemMessageWrapper className="w-full">
-      <GeneratingQueryMessageContent content={content} />
-    </SystemMessageWrapper>
-  );
+const GeneratingQueryMessage = memo(
+  ({
+    content,
+    enableAnimationRef,
+  }: {
+    content: string;
+    enableAnimationRef: RefObject<boolean>;
+  }) => {
+    return (
+      <SystemMessageWrapper
+        className={cn("w-full", enableAnimationRef.current && "fade-in-up")}
+      >
+        <p className="text-xs text-muted-foreground">{content}</p>
+        <GeneratingQueryMessageContent content={content} />
+      </SystemMessageWrapper>
+    );
+  }
+);
+
+const handleFakeResponse = async (
+  setMessages: Dispatch<SetStateAction<Message[]>>
+) => {
+  // First send a "Thinking" message
+
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      id: prev.length + 1,
+      content: "Thinking",
+      thinking: true,
+      role: "system",
+    },
+  ]);
+
+  // Then send another message about analyzing the data
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  setMessages((prev) => [
+    ...prev,
+    {
+      id: prev.length + 1,
+      content: "Analyzing the data",
+      thinking: true,
+      role: "system",
+    },
+  ]);
+
+  // Then we'll send one that's like "Writing SQL and we'll include a custom content snippet so we can render a custom react component"
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  setMessages((prev) => [
+    ...prev,
+    {
+      id: prev.length + 1,
+      content: "Writing SQL",
+      role: "system",
+      component: "generating-query",
+    },
+  ]);
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  setMessages((prev) => [
+    ...prev,
+    {
+      id: prev.length + 1,
+      content: "Query generated successfully.",
+      role: "assistant",
+    },
+  ]);
 };
 
 const ChatContent = () => {
-  const [messages, setMessages] = useState<Message[]>(defaultMessages);
+  const enableAnimationRef = useRef(false);
+  const [messages, setMessages] = useState<Message[]>(
+    // defaultMessages
+    defaultMessagesWithFakeResponse
+  );
   const [input, setInput] = useState("");
 
-  const handleFakeResponse = useCallback(async () => {
-    // First send a "Thinking..." message
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, content: "Thinking...", role: "system" },
-    ]);
-
-    // Then send another message about analyzing the data
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        content: "Analyzing the data...",
-        role: "system",
-      },
-    ]);
-
-    // Then we'll send one that's like "Writing SQL and we'll include a custom content snippet so we can render a custom react component"
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        content: "Writing SQL...",
-        role: "system",
-        component: "generating-query",
-      },
-    ]);
-  }, [messages]);
+  useEffect(() => {
+    enableAnimationRef.current = true;
+  }, []);
 
   const sendMessage = useCallback(
     (message: string) => {
@@ -156,7 +272,7 @@ const ChatContent = () => {
         ...messages,
         { id: messages.length + 1, content: message, role: "user" },
       ]);
-      handleFakeResponse();
+      handleFakeResponse(setMessages);
     },
     [messages]
   );
@@ -164,22 +280,53 @@ const ChatContent = () => {
   return (
     <div className="space-y-4 h-full flex flex-col">
       <div className="p-2 flex-1 overflow-y-auto">
-        {messages.map((message) => {
-          if (message.component === "generating-query") {
+        {messages.map((message, index) => {
+          const isMostRecentMessage = index === messages.length - 1;
+
+          if (message.component === "generating-query" && isMostRecentMessage) {
             return (
               <GeneratingQueryMessage
                 key={message.id}
-                content="Generating query..."
+                content={message.content}
+                enableAnimationRef={enableAnimationRef}
+              />
+            );
+          } else if (
+            message.component === "generating-query" &&
+            !isMostRecentMessage
+          ) {
+            return (
+              <SystemMessage
+                key={message.id}
+                content={message.content}
+                enableAnimationRef={enableAnimationRef}
               />
             );
           } else if (message.role === "system") {
-            return <SystemMessage key={message.id} content={message.content} />;
+            return (
+              <SystemMessage
+                key={message.id}
+                content={message.content}
+                thinking={message.thinking && isMostRecentMessage}
+                enableAnimationRef={enableAnimationRef}
+              />
+            );
           } else if (message.role === "assistant") {
             return (
-              <AssistantMessage key={message.id} content={message.content} />
+              <AssistantMessage
+                key={message.id}
+                content={message.content}
+                enableAnimationRef={enableAnimationRef}
+              />
             );
           } else {
-            return <UserMessage key={message.id} content={message.content} />;
+            return (
+              <UserMessage
+                key={message.id}
+                content={message.content}
+                enableAnimationRef={enableAnimationRef}
+              />
+            );
           }
         })}
       </div>
