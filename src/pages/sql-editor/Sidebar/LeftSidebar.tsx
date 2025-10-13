@@ -9,7 +9,7 @@ import {
 
 function LeftSidebar({ handleClose }: { handleClose: () => void }) {
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col ">
       <div className="border-b border-border py-3 pl-4 pr-2 h-toolbar-header flex items-center justify-between">
         <h2 className="text-sm font-medium text-foreground">Explore</h2>
         <Tooltip>

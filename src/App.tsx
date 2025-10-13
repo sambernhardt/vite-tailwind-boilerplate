@@ -64,7 +64,7 @@ function App() {
       <header className="flex justify-between items-center px-4 py-2">
         <div className="flex gap-2 items-center">
           <Logo />
-          <div className="text-[15px] mb-0.5">Queries</div>
+          <div className="text-[15px] mb-0.5">Studio</div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -89,11 +89,8 @@ function App() {
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
-      <div className="flex-1 min-h-0 px-4 pb-4">
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="h-full w-full border border-border rounded-xl bg-card"
-        >
+      <div className="flex-1 min-h-0 px-4 pb-4 flex">
+        <ResizablePanelGroup direction="horizontal" className="h-full gap-0.5">
           {/* Left Sidebar */}
           <ResizablePanel
             ref={leftSidebarRef}
@@ -101,14 +98,24 @@ function App() {
             minSize={15}
             maxSize={35}
             collapsible
+            className=" bg-card border border-border rounded-xl"
+            style={{
+              opacity: isLeftSidebarOpen ? "100%" : "0%",
+            }}
           >
             <LeftSidebar handleClose={collapseLeftSidebar} />
           </ResizablePanel>
 
-          <ResizableHandle className={isLeftSidebarOpen ? "" : "opacity-0"} />
+          <ResizableHandle
+            className={isLeftSidebarOpen ? "opacity-10" : "opacity-0"}
+          />
 
           {/* Middle Content Area */}
-          <ResizablePanel defaultSize={60} minSize={30} className="-ml-px">
+          <ResizablePanel
+            defaultSize={60}
+            minSize={30}
+            className="-ml-px bg-card border border-border rounded-xl"
+          >
             <ResizablePanelGroup direction="vertical" className="h-full">
               {/* SQL Editor - Top Half */}
               <ResizablePanel defaultSize={50} minSize={20}>
@@ -129,7 +136,9 @@ function App() {
             </ResizablePanelGroup>
           </ResizablePanel>
 
-          <ResizableHandle className={isRightSidebarOpen ? "" : "opacity-0"} />
+          <ResizableHandle
+            className={isRightSidebarOpen ? "opacity-10" : "opacity-0"}
+          />
 
           {/* Right Sidebar */}
           <ResizablePanel
@@ -138,6 +147,10 @@ function App() {
             minSize={15}
             maxSize={35}
             collapsible
+            className=" bg-card border border-border rounded-xl"
+            style={{
+              opacity: isRightSidebarOpen ? "100%" : "0%",
+            }}
           >
             <RightSidebar handleClose={collapseRightSidebar} />
           </ResizablePanel>
