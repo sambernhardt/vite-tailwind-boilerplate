@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -15,7 +16,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-function App() {
+export const Route = createFileRoute("/")({
+  component: Index,
+});
+
+function Index() {
   return (
     <div className="w-screen h-screen flex flex-col">
       <header className="flex justify-between items-center px-4 py-2">
@@ -59,30 +64,40 @@ function App() {
                 </TabsList>
                 <TabsContent value="account">
                   <div className="space-y-4 p-4">
-                    <h3 className="text-lg font-semibold">Explore</h3>
+                    <h3 className="text-lg font-semibold text-sidebar-foreground">
+                      Explore
+                    </h3>
                     <div className="space-y-2">
                       <div className="p-3 rounded-lg">
-                        <h4 className="font-medium">Database Tables</h4>
-                        <p className="text-sm mt-1">
+                        <h4 className="font-medium text-sidebar-accent-foreground">
+                          Database Tables
+                        </h4>
+                        <p className="text-sm text-sidebar-foreground/70 mt-1">
                           Browse your database schema
                         </p>
                       </div>
                       <div className="p-3 rounded-lg">
-                        <h4 className="font-medium">Saved Queries</h4>
-                        <p className="text-sm mt-1">
+                        <h4 className="font-medium text-sidebar-accent-foreground">
+                          Saved Queries
+                        </h4>
+                        <p className="text-sm text-sidebar-foreground/70 mt-1">
                           Access your saved SQL queries
                         </p>
                       </div>
                       <div className="p-3 rounded-lg">
-                        <h4 className="font-medium">Recent Activity</h4>
-                        <p className="text-sm mt-1">
+                        <h4 className="font-medium text-sidebar-accent-foreground">
+                          Recent Activity
+                        </h4>
+                        <p className="text-sm text-sidebar-foreground/70 mt-1">
                           View recent database operations
                         </p>
                       </div>
                       {Array.from({ length: 10 }, (_, i) => (
                         <div key={i} className="p-3 rounded-lg">
-                          <h4 className="font-medium">Item {i + 4}</h4>
-                          <p className="text-sm mt-1">
+                          <h4 className="font-medium text-sidebar-accent-foreground">
+                            Item {i + 4}
+                          </h4>
+                          <p className="text-sm text-sidebar-foreground/70 mt-1">
                             Sample content for scrolling demo
                           </p>
                         </div>
@@ -92,10 +107,12 @@ function App() {
                 </TabsContent>
                 <TabsContent value="password">
                   <div className="space-y-4 p-4">
-                    <h3 className="text-lg font-semibold">Chat</h3>
+                    <h3 className="text-lg font-semibold text-sidebar-foreground">
+                      Chat
+                    </h3>
                     <div className="space-y-3">
-                      <div className="p-3 bg-accent rounded-lg">
-                        <p className="text-sm">
+                      <div className="p-3 bg-sidebar-accent rounded-lg">
+                        <p className="text-sm text-sidebar-accent-foreground">
                           How can I help you with your SQL queries today?
                         </p>
                       </div>
@@ -105,8 +122,8 @@ function App() {
                             key={i}
                             className={`p-3 rounded-lg ${
                               i % 2 === 0
-                                ? "bg-accent ml-4"
-                                : "bg-primary text-primary-foreground mr-4"
+                                ? "bg-sidebar-accent ml-4"
+                                : "bg-sidebar-primary text-sidebar-primary-foreground mr-4"
                             }`}
                           >
                             <p className="text-sm">
@@ -124,7 +141,7 @@ function App() {
             </div>
           </ResizablePanel>
 
-          <ResizableHandle />
+          <ResizableHandle withHandle />
 
           {/* Right Content Area */}
           <ResizablePanel defaultSize={75}>
@@ -193,18 +210,17 @@ ORDER BY month;`}</code>
                 </div>
               </ResizablePanel>
 
-              <ResizableHandle />
+              <ResizableHandle withHandle />
 
               {/* Results Table - Bottom Half */}
               <ResizablePanel defaultSize={50} minSize={20}>
                 <div className="h-full flex flex-col">
-                  <div className="flex justify-between items-center p-2">
-                    <div className="flex gap-1 items-center">
-                      <Button variant="secondary">Results</Button>
-                      <Button variant="ghost">Chart</Button>
-                    </div>
+                  <div className="px-4 py-2 bg-muted border-b border-border">
+                    <h2 className="text-sm font-medium text-foreground">
+                      Query Results
+                    </h2>
                   </div>
-                  <div className="flex-1 overflow-auto px-2 pb-2">
+                  <div className="flex-1 overflow-auto p-4">
                     <div className="border border-border rounded-lg overflow-hidden">
                       <table className="w-full text-sm">
                         <thead className="bg-muted">
@@ -264,5 +280,3 @@ ORDER BY month;`}</code>
     </div>
   );
 }
-
-export default App;
