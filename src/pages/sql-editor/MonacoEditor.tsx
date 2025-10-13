@@ -1,33 +1,76 @@
 import { Button } from "@/components/ui/button";
-import { PlusIcon, X, RefreshCw, Sparkles, SidebarClose } from "lucide-react";
+import { Kbd } from "@/components/ui/kbd";
+import {
+  PlusIcon,
+  X,
+  RefreshCw,
+  Sparkles,
+  Sidebar,
+  MessagesSquare,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const MonacoEditor = ({
   isLeftSidebarOpen,
   handleExpandLeftSidebar,
+  isRightSidebarOpen,
+  handleExpandRightSidebar,
 }: {
   isLeftSidebarOpen: boolean;
   handleExpandLeftSidebar: () => void;
+  isRightSidebarOpen: boolean;
+  handleExpandRightSidebar: () => void;
 }) => {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center gap-1 px-2 py-2 border-b border-border h-toolbar-header">
-        {!isLeftSidebarOpen && (
-          <Button
-            size="icon"
-            variant="ghost"
-            className="text-muted-foreground"
-            onClick={handleExpandLeftSidebar}
-          >
-            <SidebarClose />
+      <div className="flex items-center justify-between px-2 py-2 border-b border-border h-toolbar-header">
+        <div className="flex gap-2 items-center">
+          {!isLeftSidebarOpen && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={handleExpandLeftSidebar}
+                >
+                  <Sidebar />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open explorer</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <Button variant="ghost">
+            Query 1
+            <X className="text-muted-foreground" />
           </Button>
+          <Button size="icon" variant="ghost">
+            <PlusIcon />
+          </Button>
+        </div>
+        {!isRightSidebarOpen && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="text-muted-foreground"
+                onClick={handleExpandRightSidebar}
+              >
+                <MessagesSquare />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Open chat</p>
+            </TooltipContent>
+          </Tooltip>
         )}
-        <Button variant="ghost">
-          Query 1
-          <X className="text-muted-foreground" />
-        </Button>
-        <Button size="icon" variant="ghost">
-          <PlusIcon />
-        </Button>
       </div>
       <div className="flex-1 overflow-auto p-2">
         <pre className="h-full bg-background border border-border rounded-lg p-4 text-xs font-mono text-card-foreground overflow-auto">
@@ -85,7 +128,9 @@ ORDER BY month;`}</code>
       <div className="flex items-center justify-between px-2 pb-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground pl-2">
           <Sparkles className="w-3 h-3 fill-current" />
-          <span className="text-xs">Press ⌘I to edit with a prompt</span>
+          <span className="text-xs">
+            Press <Kbd>Ctrl + i</Kbd> to edit with a prompt
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">

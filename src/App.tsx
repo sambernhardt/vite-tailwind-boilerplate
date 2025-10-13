@@ -23,7 +23,9 @@ import { ImperativePanelHandle } from "react-resizable-panels";
 
 function App() {
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
   const leftSidebarRef = useRef<ImperativePanelHandle>(null!);
+  const rightSidebarRef = useRef<ImperativePanelHandle>(null!);
 
   const collapseLeftSidebar = () => {
     const panel = leftSidebarRef.current;
@@ -38,6 +40,22 @@ function App() {
     if (panel) {
       panel.expand();
       setIsLeftSidebarOpen(true);
+    }
+  };
+
+  const collapseRightSidebar = () => {
+    const panel = rightSidebarRef.current;
+    if (panel) {
+      panel.collapse();
+      setIsRightSidebarOpen(false);
+    }
+  };
+
+  const expandRightSidebar = () => {
+    const panel = rightSidebarRef.current;
+    if (panel) {
+      panel.expand();
+      setIsRightSidebarOpen(true);
     }
   };
 
@@ -97,6 +115,8 @@ function App() {
                 <MonacoEditor
                   isLeftSidebarOpen={isLeftSidebarOpen}
                   handleExpandLeftSidebar={expandLeftSidebar}
+                  isRightSidebarOpen={isRightSidebarOpen}
+                  handleExpandRightSidebar={expandRightSidebar}
                 />
               </ResizablePanel>
 
@@ -112,8 +132,14 @@ function App() {
           <ResizableHandle />
 
           {/* Right Sidebar */}
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
-            <RightSidebar />
+          <ResizablePanel
+            ref={rightSidebarRef}
+            defaultSize={20}
+            minSize={15}
+            maxSize={35}
+            collapsible
+          >
+            <RightSidebar handleClose={collapseRightSidebar} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
