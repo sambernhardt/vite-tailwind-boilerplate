@@ -1,0 +1,112 @@
+import { IconPlus } from "@tabler/icons-react";
+import { ArrowUpIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group";
+import { Separator } from "@/components/ui/separator";
+
+const messages = [
+  {
+    id: 1,
+    content: "How can I help you with your SQL queries today?",
+    role: "assistant",
+  },
+  {
+    id: 2,
+    content: "I have a question about the data in the database.",
+    role: "user",
+  },
+  {
+    id: 3,
+    content: "I need to know the total sales for the month of January.",
+    role: "user",
+  },
+  {
+    id: 4,
+    content: "Let me help you with that.",
+    role: "assistant",
+  },
+];
+
+const UserMessage = ({ content }: { content: string }) => {
+  return (
+    <div data-role="user" className="px-3 py-2 rounded-lg bg-accent ml-4">
+      <p className="text-sm">{content}</p>
+    </div>
+  );
+};
+
+const AssistantMessage = ({ content }: { content: string }) => {
+  return (
+    <div data-role="assistant">
+      <p className="text-sm">{content}</p>
+    </div>
+  );
+};
+
+const ChatContent = () => {
+  return (
+    <div className="space-y-4 h-full flex flex-col">
+      <div className="p-2 space-y-3 flex-1 overflow-y-auto">
+        <div className="space-y-2">
+          {messages.map((message) =>
+            message.role === "assistant" ? (
+              <AssistantMessage key={message.id} content={message.content} />
+            ) : (
+              <UserMessage key={message.id} content={message.content} />
+            )
+          )}
+        </div>
+      </div>
+      <InputGroup>
+        <InputGroupTextarea placeholder="Ask, Search or Chat..." />
+        <InputGroupAddon align="block-end">
+          <InputGroupButton
+            variant="outline"
+            className="rounded-full"
+            size="icon-xs"
+          >
+            <IconPlus />
+          </InputGroupButton>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <InputGroupButton variant="ghost">Auto</InputGroupButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              className="[--radius:0.95rem]"
+            >
+              <DropdownMenuItem>Auto</DropdownMenuItem>
+              <DropdownMenuItem>Agent</DropdownMenuItem>
+              <DropdownMenuItem>Manual</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <InputGroupText className="ml-auto">52% used</InputGroupText>
+          <Separator orientation="vertical" className="!h-4" />
+          <InputGroupButton
+            variant="default"
+            className="rounded-full"
+            size="icon-xs"
+            disabled
+          >
+            <ArrowUpIcon />
+            <span className="sr-only">Send</span>
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    </div>
+  );
+};
+
+export default ChatContent;
