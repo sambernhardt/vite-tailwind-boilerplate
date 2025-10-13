@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // Constants
 const TICK_MS = 25;
 const PX_PER_CHAR = 8;
+const LINE_HEIGHT = 6;
 
 type Part =
   | { type: "code"; width: number; key: string }
@@ -49,8 +50,8 @@ const Spacer = ({ width }: { width: number }) => (
 
 const Code = ({ width }: { width: number }) => (
   <div
-    className="shrink-0 h-1.5 rounded-[4px] bg-muted-foreground/20 will-change-transform animate-[fadeInUp_150ms_ease-out]"
-    style={{ width }}
+    className="shrink-0 rounded-[4px] bg-muted-foreground/20 will-change-transform animate-[fadeInUp_150ms_ease-out]"
+    style={{ width, height: `${LINE_HEIGHT}px` }}
   />
 );
 

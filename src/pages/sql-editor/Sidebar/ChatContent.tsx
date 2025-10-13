@@ -190,7 +190,10 @@ const GeneratingQueryMessage = memo(
   }) => {
     return (
       <SystemMessageWrapper
-        className={cn("w-full", enableAnimationRef.current && "fade-in-up")}
+        className={cn(
+          "w-full flex flex-col gap-1",
+          enableAnimationRef.current && "fade-in-up"
+        )}
       >
         <p className="text-xs text-muted-foreground">{content}</p>
         <GeneratingQueryMessageContent content={content} />
@@ -204,7 +207,7 @@ const handleFakeResponse = async (
 ) => {
   // First send a "Thinking" message
 
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   setMessages((prev) => [
     ...prev,
@@ -254,8 +257,8 @@ const handleFakeResponse = async (
 const ChatContent = () => {
   const enableAnimationRef = useRef(false);
   const [messages, setMessages] = useState<Message[]>(
-    // defaultMessages
-    defaultMessagesWithFakeResponse
+    defaultMessages
+    // defaultMessagesWithFakeResponse
   );
   const [input, setInput] = useState("");
 

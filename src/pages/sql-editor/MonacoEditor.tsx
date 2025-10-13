@@ -27,7 +27,7 @@ const MonacoEditor = ({
 }) => {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between px-1.5 py-1.5 border-b border-border h-toolbar-header">
+      <div className="flex items-center justify-between p-3 border-b border-border h-toolbar-header">
         <div className="flex gap-1 items-center">
           {!isLeftSidebarOpen && (
             <Tooltip>
@@ -56,25 +56,28 @@ const MonacoEditor = ({
             </Button>
           )}
         </div>
-        {!isRightSidebarOpen && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="text-muted-foreground"
-                onClick={handleExpandRightSidebar}
-              >
-                <MessagesSquare />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Open chat</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
+        <div className="flex gap-2 items-center">
+          <Button variant="default">Save</Button>
+          {!isRightSidebarOpen && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={handleExpandRightSidebar}
+                >
+                  <MessagesSquare />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open chat</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       </div>
-      <div className="flex-1 overflow-auto p-3">
+      <div className="flex-1 overflow-auto px-3 pt-3 pb-2">
         <pre className="h-full bg-background border border-border rounded-lg p-4 text-xs font-mono text-card-foreground overflow-auto">
           <code>{`-- Welcome to the SQL Editor
 -- Write your SQL queries here
