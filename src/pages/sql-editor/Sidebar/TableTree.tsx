@@ -50,7 +50,7 @@ const TableTree = ({ tables }: TableTreeProps) => {
   };
 
   const renderTree = (items: TableItem[], level = 0) => {
-    return items.map((item, index) => {
+    return items.map((item) => {
       const hasChildren = item.children && item.children.length > 0;
       const isExpanded = expandedItems.has(item.id);
       const paddingLeft = level * 16 + 8;
@@ -68,7 +68,7 @@ const TableTree = ({ tables }: TableTreeProps) => {
             className={cn(
               hasChildren && isExpanded && "sticky",
               "collapsible-group-header",
-              "flex items-center gap-2 py-2 px-2 bg-card hover:bg-muted dark:hover:bg-popover cursor-pointer border-b border-border",
+              "flex items-center gap-2 py-2 px-2 bg-card hover:bg-muted dark:hover:bg-popover cursor-pointer outline-solid outline-1 outline-neutral-200 dark:outline-neutral-800 mb-px",
               "[[data-tree-root]>&:first-child]:rounded-t-md",
               "[[data-tree-root]>&:last-child]:rounded-b-md",
               "[[data-tree-root]>&:last-child]:border-b-0"
@@ -107,11 +107,7 @@ const TableTree = ({ tables }: TableTreeProps) => {
     });
   };
 
-  return (
-    <div data-tree-root className="border border-border rounded-md">
-      {renderTree(tables)}
-    </div>
-  );
+  return <div data-tree-root>{renderTree(tables)}</div>;
 };
 
 export default TableTree;

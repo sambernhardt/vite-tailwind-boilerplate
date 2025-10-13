@@ -64,7 +64,7 @@ function App() {
       <header className="flex justify-between items-center px-4 py-2">
         <div className="flex gap-2 items-center">
           <Logo />
-          <div className="text-[15px] mb-0.5">Studio</div>
+          <div className="text-[15px] mb-0.5">Queries</div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -105,10 +105,10 @@ function App() {
             <LeftSidebar handleClose={collapseLeftSidebar} />
           </ResizablePanel>
 
-          <ResizableHandle />
+          <ResizableHandle className={isLeftSidebarOpen ? "" : "opacity-0"} />
 
           {/* Middle Content Area */}
-          <ResizablePanel defaultSize={60} minSize={30}>
+          <ResizablePanel defaultSize={60} minSize={30} className="-ml-px">
             <ResizablePanelGroup direction="vertical" className="h-full">
               {/* SQL Editor - Top Half */}
               <ResizablePanel defaultSize={50} minSize={20}>
@@ -129,7 +129,7 @@ function App() {
             </ResizablePanelGroup>
           </ResizablePanel>
 
-          <ResizableHandle />
+          <ResizableHandle className={isRightSidebarOpen ? "" : "opacity-0"} />
 
           {/* Right Sidebar */}
           <ResizablePanel

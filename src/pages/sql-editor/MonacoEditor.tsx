@@ -28,7 +28,7 @@ const MonacoEditor = ({
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between px-2 py-2 border-b border-border h-toolbar-header">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1 items-center">
           {!isLeftSidebarOpen && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -72,7 +72,7 @@ const MonacoEditor = ({
           </Tooltip>
         )}
       </div>
-      <div className="flex-1 overflow-auto p-2">
+      <div className="flex-1 overflow-auto p-3">
         <pre className="h-full bg-background border border-border rounded-lg p-4 text-xs font-mono text-card-foreground overflow-auto">
           <code>{`-- Welcome to the SQL Editor
 -- Write your SQL queries here
@@ -125,11 +125,11 @@ FROM monthly_sales
 ORDER BY month;`}</code>
         </pre>
       </div>
-      <div className="flex items-center justify-between px-2 pb-2">
+      <div className="flex items-center justify-between px-3 pb-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground pl-2">
-          <Sparkles className="w-3 h-3 fill-current" />
+          <Sparkles className="w-3 h-3" />
           <span className="text-xs">
-            Press <Kbd>Ctrl + i</Kbd> to edit with a prompt
+            Press <Kbd>Cmd + i</Kbd> to edit with a prompt
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -140,7 +140,14 @@ ORDER BY month;`}</code>
             <RefreshCw className="!w-3 !h-3" />
             Add refresh
           </Button>
-          <Button size="sm">Run query</Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="sm">Run query</Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>CMD + Enter</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </div>
