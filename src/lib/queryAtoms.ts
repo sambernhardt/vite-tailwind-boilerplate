@@ -1,10 +1,7 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
 // Default SQL content
-const DEFAULT_SQL = `-- Welcome to the SQL Editor
--- Write your SQL queries here
-
-SELECT 
+const DEFAULT_SQL = `SELECT 
     users.id,
     users.name,
     users.email,
@@ -52,7 +49,7 @@ FROM monthly_sales
 ORDER BY month;`;
 
 // Atom for the current query title
-export const queryTitleAtom = atom<string>('Aave TVL by asset');
+export const queryTitleAtom = atom<string>("Aave TVL by asset");
 
 // Atom for the current SQL query text
 export const querySqlAtom = atom<string>(DEFAULT_SQL);
