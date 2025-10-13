@@ -39,16 +39,22 @@ const defaultMessages = [
 
 const UserMessage = ({ content }: { content: string }) => {
   return (
-    <div data-role="user" className="px-3 py-2 rounded-lg bg-accent ml-4">
-      <p className="text-sm">{content}</p>
+    <div
+      data-role="user"
+      className="flex justify-end ml-4 mt-3 [[data-role=user]_+_&]:mt-1 first:mt-0"
+    >
+      <p className="text-[13px] px-3 py-2 rounded-lg bg-accent ">{content}</p>
     </div>
   );
 };
 
 const AssistantMessage = ({ content }: { content: string }) => {
   return (
-    <div data-role="assistant">
-      <p className="text-sm">{content}</p>
+    <div
+      data-role="assistant"
+      className="flex mt-3 [[data-role=assistant]_+_&]:mt-1 first:mt-0"
+    >
+      <p className="text-[13px]">{content}</p>
     </div>
   );
 };
@@ -72,16 +78,14 @@ const ChatContent = () => {
 
   return (
     <div className="space-y-4 h-full flex flex-col">
-      <div className="p-2 space-y-3 flex-1 overflow-y-auto">
-        <div className="space-y-2">
-          {messages.map((message) =>
-            message.role === "assistant" ? (
-              <AssistantMessage key={message.id} content={message.content} />
-            ) : (
-              <UserMessage key={message.id} content={message.content} />
-            )
-          )}
-        </div>
+      <div className="p-2 flex-1 overflow-y-auto">
+        {messages.map((message) =>
+          message.role === "assistant" ? (
+            <AssistantMessage key={message.id} content={message.content} />
+          ) : (
+            <UserMessage key={message.id} content={message.content} />
+          )
+        )}
       </div>
       <InputGroup>
         <InputGroupTextarea

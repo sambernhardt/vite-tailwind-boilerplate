@@ -27,7 +27,7 @@ const MonacoEditor = ({
 }) => {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between px-2 py-2 border-b border-border h-toolbar-header">
+      <div className="flex items-center justify-between px-1.5 py-1.5 border-b border-border h-toolbar-header">
         <div className="flex gap-1 items-center">
           {!isLeftSidebarOpen && (
             <Tooltip>
@@ -47,12 +47,14 @@ const MonacoEditor = ({
             </Tooltip>
           )}
           <Button variant="ghost">
-            Query 1
+            Aave TVL by asset
             <X className="text-muted-foreground" />
           </Button>
-          <Button size="icon" variant="ghost">
-            <PlusIcon />
-          </Button>
+          {false && (
+            <Button size="icon" variant="ghost">
+              <PlusIcon />
+            </Button>
+          )}
         </div>
         {!isRightSidebarOpen && (
           <Tooltip>

@@ -28,7 +28,7 @@ function RightSidebar({ handleClose }: { handleClose: () => void }) {
           </TooltipContent>
         </Tooltip>
       </div>
-      <div className="flex-1 overflow-hidden px-2 pb-2">
+      <div className="flex-1 overflow-hidden p-1.5">
         <ChatContent />
       </div>
     </div>
