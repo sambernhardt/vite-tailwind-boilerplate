@@ -77,8 +77,6 @@ export function ThemeProvider({
     },
   };
 
-  console.log("theme", theme);
-
   return (
     <ThemeProviderContext.Provider {...props} value={value}>
       {children}

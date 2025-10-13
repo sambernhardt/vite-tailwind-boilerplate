@@ -1,7 +1,5 @@
 import {
   Dispatch,
-  memo,
-  RefObject,
   SetStateAction,
   useCallback,
   useEffect,
@@ -22,17 +20,16 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import GeneratingQueryMessageContent from "./GeneratingQueryMessageContent";
-import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
+import { generateChatResponse } from "@/lib/openai";
+import type { CoreMessage } from "ai";
+import { Message, MessageRenderer } from "./MessageComponents";
 
-type Message = {
-  id: number;
-  content: string;
-  component?: "generating-query";
-  thinking?: boolean;
-  role: "user" | "assistant" | "system";
-};
+// Convert our Message type to CoreMessage for AI SDK
+const convertToCoreMessage = (message: Message): CoreMessage => ({
+  role: message.role === "system" ? "system" : message.role,
+  content: message.content,
+});
 
 const defaultMessages: Message[] = [
   {
@@ -57,158 +54,11 @@ const defaultMessages: Message[] = [
   },
 ];
 
-const defaultMessagesWithFakeResponse: Message[] = [
-  ...defaultMessages,
-  {
-    id: 5,
-    content: "Thinking",
-    role: "system",
-    thinking: true,
-  },
-  {
-    id: 6,
-    content: "Analyzing the data",
-    role: "system",
-    thinking: true,
-  },
-  {
-    id: 7,
-    content: "Writing SQL",
-    role: "system",
-    component: "generating-query",
-  },
-  // {
-  //   id: 8,
-  //   content: "Validating query",
-  //   thinking: true,
-  //   role: "assistant",
-  // },
-];
-
-const UserMessageWrapper = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div
-      data-role="user"
-      className="flex justify-end ml-4 mt-3 [[data-role=user]_+_&]:mt-1 first:mt-0"
-    >
-      {children}
-    </div>
-  );
-};
-
-const SystemMessageWrapper = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return (
-    <div
-      data-role="system"
-      className={cn(
-        "flex mt-3 [[data-role=system]_+_&]:mt-1 first:mt-0",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-};
-
-const UserMessage = memo(
-  ({
-    content,
-    enableAnimationRef,
-  }: {
-    content: string;
-    enableAnimationRef: RefObject<boolean>;
-  }) => {
-    return (
-      <UserMessageWrapper>
-        <p
-          className={cn(
-            "text-[13px] px-3 py-2 rounded-lg bg-accent ",
-            enableAnimationRef.current && "fade-in-up"
-          )}
-        >
-          {content}
-        </p>
-      </UserMessageWrapper>
-    );
-  }
-);
-
-const AssistantMessage = memo(
-  ({
-    content,
-    enableAnimationRef,
-  }: {
-    content: string;
-    enableAnimationRef: RefObject<boolean>;
-  }) => {
-    return (
-      <SystemMessageWrapper
-        className={cn(enableAnimationRef.current && "fade-in-up")}
-      >
-        <p className="text-[13px]">{content}</p>
-      </SystemMessageWrapper>
-    );
-  }
-);
-
-const SystemMessage = memo(
-  ({
-    content,
-    thinking,
-    enableAnimationRef,
-  }: {
-    content: string;
-    thinking?: boolean;
-    enableAnimationRef: RefObject<boolean>;
-  }) => {
-    return (
-      <SystemMessageWrapper
-        className={cn(enableAnimationRef.current && "fade-in-up")}
-      >
-        <div className="flex gap-2 items-center">
-          <p className="text-xs text-muted-foreground">{content}</p>
-          {thinking && <Spinner className="size-3" />}
-        </div>
-      </SystemMessageWrapper>
-    );
-  }
-);
-
-const GeneratingQueryMessage = memo(
-  ({
-    content,
-    enableAnimationRef,
-  }: {
-    content: string;
-    enableAnimationRef: RefObject<boolean>;
-  }) => {
-    return (
-      <SystemMessageWrapper
-        className={cn(
-          "w-full flex flex-col gap-1",
-          enableAnimationRef.current && "fade-in-up"
-        )}
-      >
-        <p className="text-xs text-muted-foreground">{content}</p>
-        <GeneratingQueryMessageContent content={content} />
-      </SystemMessageWrapper>
-    );
-  }
-);
-
-const handleFakeResponse = async (
+const handleAIResponse = async (
+  messages: Message[],
   setMessages: Dispatch<SetStateAction<Message[]>>
 ) => {
-  // First send a "Thinking" message
-
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
+  // Add thinking message
   setMessages((prev) => [
     ...prev,
     {
@@ -219,129 +69,120 @@ const handleFakeResponse = async (
     },
   ]);
 
-  // Then send another message about analyzing the data
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  setMessages((prev) => [
-    ...prev,
-    {
-      id: prev.length + 1,
-      content: "Analyzing the data",
-      thinking: true,
-      role: "system",
-    },
-  ]);
+  try {
+    // Convert messages to CoreMessage format, excluding system messages with thinking/component flags
+    const coreMessages: CoreMessage[] = messages
+      .filter(
+        (msg) => !(msg.role === "system" && (msg.thinking || msg.component))
+      )
+      .map(convertToCoreMessage);
 
-  // Then we'll send one that's like "Writing SQL and we'll include a custom content snippet so we can render a custom react component"
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  setMessages((prev) => [
-    ...prev,
-    {
-      id: prev.length + 1,
-      content: "Writing SQL",
-      role: "system",
-      component: "generating-query",
-    },
-  ]);
+    const response = await generateChatResponse(coreMessages);
 
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  setMessages((prev) => [
-    ...prev,
-    {
-      id: prev.length + 1,
-      content: "Query generated successfully.",
-      role: "assistant",
-    },
-  ]);
+    if (response.success && response.text) {
+      // Remove thinking message and add AI response
+      setMessages((prev) => {
+        const withoutThinking = prev.filter(
+          (msg) => !(msg.thinking && msg.role === "system")
+        );
+        return [
+          ...withoutThinking,
+          {
+            id: withoutThinking.length + 1,
+            content: response.text,
+            role: "assistant",
+          },
+        ];
+      });
+    } else {
+      // Remove thinking message and add error message
+      setMessages((prev) => {
+        const withoutThinking = prev.filter(
+          (msg) => !(msg.thinking && msg.role === "system")
+        );
+        return [
+          ...withoutThinking,
+          {
+            id: withoutThinking.length + 1,
+            content: `Error: ${response.error || "Failed to generate response"}`,
+            role: "system",
+          },
+        ];
+      });
+    }
+  } catch (error) {
+    // Remove thinking message and add error message
+    setMessages((prev) => {
+      const withoutThinking = prev.filter(
+        (msg) => !(msg.thinking && msg.role === "system")
+      );
+      return [
+        ...withoutThinking,
+        {
+          id: withoutThinking.length + 1,
+          content: `Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`,
+          role: "system",
+        },
+      ];
+    });
+  }
 };
 
 const ChatContent = () => {
   const enableAnimationRef = useRef(false);
-  const [messages, setMessages] = useState<Message[]>(
-    defaultMessages
-    // defaultMessagesWithFakeResponse
-  );
+  const [messages, setMessages] = useState<Message[]>(defaultMessages);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     enableAnimationRef.current = true;
   }, []);
 
   const sendMessage = useCallback(
-    (message: string) => {
-      if (!message) return;
+    async (message: string) => {
+      if (!message || isLoading) return;
 
       setInput("");
-      setMessages([
+      setIsLoading(true);
+
+      const newMessages = [
         ...messages,
-        { id: messages.length + 1, content: message, role: "user" },
-      ]);
-      handleFakeResponse(setMessages);
+        { id: messages.length + 1, content: message, role: "user" as const },
+      ];
+
+      setMessages(newMessages);
+
+      try {
+        await handleAIResponse(newMessages, setMessages);
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [messages]
+    [messages, isLoading]
   );
 
   return (
     <div className="space-y-4 h-full flex flex-col">
       <div className="p-2 flex-1 overflow-y-auto">
-        {messages.map((message, index) => {
-          const isMostRecentMessage = index === messages.length - 1;
-
-          if (message.component === "generating-query" && isMostRecentMessage) {
-            return (
-              <GeneratingQueryMessage
-                key={message.id}
-                content={message.content}
-                enableAnimationRef={enableAnimationRef}
-              />
-            );
-          } else if (
-            message.component === "generating-query" &&
-            !isMostRecentMessage
-          ) {
-            return (
-              <SystemMessage
-                key={message.id}
-                content={message.content}
-                enableAnimationRef={enableAnimationRef}
-              />
-            );
-          } else if (message.role === "system") {
-            return (
-              <SystemMessage
-                key={message.id}
-                content={message.content}
-                thinking={message.thinking && isMostRecentMessage}
-                enableAnimationRef={enableAnimationRef}
-              />
-            );
-          } else if (message.role === "assistant") {
-            return (
-              <AssistantMessage
-                key={message.id}
-                content={message.content}
-                enableAnimationRef={enableAnimationRef}
-              />
-            );
-          } else {
-            return (
-              <UserMessage
-                key={message.id}
-                content={message.content}
-                enableAnimationRef={enableAnimationRef}
-              />
-            );
-          }
-        })}
+        {messages.map((message, index) => (
+          <MessageRenderer
+            key={message.id}
+            message={message}
+            index={index}
+            totalMessages={messages.length}
+            enableAnimationRef={enableAnimationRef}
+          />
+        ))}
       </div>
       <InputGroup>
         <InputGroupTextarea
           placeholder="Ask or chat"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
+          onKeyDown={async (e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
               e.preventDefault();
-              sendMessage(input);
+              await sendMessage(input);
             }
           }}
         />
@@ -375,10 +216,10 @@ const ChatContent = () => {
             variant="default"
             className="rounded-full ml-auto"
             size="icon-xs"
-            disabled={!input}
+            disabled={!input || isLoading}
             onClick={() => sendMessage(input)}
           >
-            <ArrowUpIcon />
+            {isLoading ? <Spinner className="size-3" /> : <ArrowUpIcon />}
             <span className="sr-only">Send</span>
           </InputGroupButton>
         </InputGroupAddon>
