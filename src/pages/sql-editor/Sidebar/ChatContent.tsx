@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 import { ArrowUpIcon } from "lucide-react";
 import {
@@ -10,12 +11,10 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { Separator } from "@/components/ui/separator";
 
-const messages = [
+const defaultMessages = [
   {
     id: 1,
     content: "How can I help you with your SQL queries today?",
@@ -55,6 +54,22 @@ const AssistantMessage = ({ content }: { content: string }) => {
 };
 
 const ChatContent = () => {
+  const [messages, setMessages] = useState(defaultMessages);
+  const [input, setInput] = useState("");
+
+  const sendMessage = useCallback(
+    (message: string) => {
+      if (!message) return;
+
+      setInput("");
+      setMessages([
+        ...messages,
+        { id: messages.length + 1, content: message, role: "user" },
+      ]);
+    },
+    [messages]
+  );
+
   return (
     <div className="space-y-4 h-full flex flex-col">
       <div className="p-2 space-y-3 flex-1 overflow-y-auto">
@@ -69,7 +84,17 @@ const ChatContent = () => {
         </div>
       </div>
       <InputGroup>
-        <InputGroupTextarea placeholder="Ask, Search or Chat..." />
+        <InputGroupTextarea
+          placeholder="Ask or chat"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+              e.preventDefault();
+              sendMessage(input);
+            }
+          }}
+        />
         <InputGroupAddon align="block-end">
           <InputGroupButton
             variant="outline"
@@ -78,27 +103,30 @@ const ChatContent = () => {
           >
             <IconPlus />
           </InputGroupButton>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <InputGroupButton variant="ghost">Auto</InputGroupButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              side="top"
-              align="start"
-              className="[--radius:0.95rem]"
-            >
-              <DropdownMenuItem>Auto</DropdownMenuItem>
-              <DropdownMenuItem>Agent</DropdownMenuItem>
-              <DropdownMenuItem>Manual</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <InputGroupText className="ml-auto">52% used</InputGroupText>
-          <Separator orientation="vertical" className="!h-4" />
+          {false && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <InputGroupButton variant="ghost">Auto</InputGroupButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                className="[--radius:0.95rem]"
+              >
+                <DropdownMenuItem>Auto</DropdownMenuItem>
+                <DropdownMenuItem>Agent</DropdownMenuItem>
+                <DropdownMenuItem>Manual</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {/* <InputGroupText className="ml-auto">52% used</InputGroupText> */}
+          {/* <Separator orientation="vertical" className="!h-4" /> */}
           <InputGroupButton
             variant="default"
-            className="rounded-full"
+            className="rounded-full ml-auto"
             size="icon-xs"
-            disabled
+            disabled={!input}
+            onClick={() => sendMessage(input)}
           >
             <ArrowUpIcon />
             <span className="sr-only">Send</span>

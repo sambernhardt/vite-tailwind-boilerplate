@@ -1,10 +1,26 @@
 import { Button } from "@/components/ui/button";
-import { PlusIcon, X } from "lucide-react";
+import { PlusIcon, X, RefreshCw, Sparkles, SidebarClose } from "lucide-react";
 
-const MonacoEditor = () => {
+const MonacoEditor = ({
+  isLeftSidebarOpen,
+  handleExpandLeftSidebar,
+}: {
+  isLeftSidebarOpen: boolean;
+  handleExpandLeftSidebar: () => void;
+}) => {
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center gap-1 px-2 py-2 border-b border-border">
+      <div className="flex items-center gap-1 px-2 py-2 border-b border-border h-toolbar-header">
+        {!isLeftSidebarOpen && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={handleExpandLeftSidebar}
+          >
+            <SidebarClose />
+          </Button>
+        )}
         <Button variant="ghost">
           Query 1
           <X className="text-muted-foreground" />
@@ -13,8 +29,8 @@ const MonacoEditor = () => {
           <PlusIcon />
         </Button>
       </div>
-      <div className="flex-1 overflow-auto p-4">
-        <pre className="bg-card border border-border rounded-lg p-4 text-sm font-mono text-card-foreground overflow-auto">
+      <div className="flex-1 overflow-auto p-2">
+        <pre className="h-full bg-background border border-border rounded-lg p-4 text-xs font-mono text-card-foreground overflow-auto">
           <code>{`-- Welcome to the SQL Editor
 -- Write your SQL queries here
 
@@ -65,6 +81,22 @@ SELECT
 FROM monthly_sales
 ORDER BY month;`}</code>
         </pre>
+      </div>
+      <div className="flex items-center justify-between px-2 pb-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground pl-2">
+          <Sparkles className="w-3 h-3 fill-current" />
+          <span className="text-xs">Press ⌘I to edit with a prompt</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">
+            Estimated usage 20.11 MB
+          </span>
+          <Button variant="outline" size="sm" className="border-dashed">
+            <RefreshCw className="!w-3 !h-3" />
+            Add refresh
+          </Button>
+          <Button size="sm">Run query</Button>
+        </div>
       </div>
     </div>
   );

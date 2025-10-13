@@ -13,15 +13,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import Sidebar from "./pages/sql-editor/Sidebar/Sidebar";
+import LeftSidebar from "./pages/sql-editor/Sidebar/LeftSidebar";
+import RightSidebar from "./pages/sql-editor/Sidebar/RightSidebar";
 import MonacoEditor from "./pages/sql-editor/MonacoEditor";
 import ResultsSection from "./pages/sql-editor/ResultsSection";
+import Logo from "./Logo";
+import { useRef, useState } from "react";
+import { ImperativePanelHandle } from "react-resizable-panels";
 
 function App() {
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
+  const leftSidebarRef = useRef<ImperativePanelHandle>(null!);
+
+  const collapseLeftSidebar = () => {
+    const panel = leftSidebarRef.current;
+    if (panel) {
+      panel.collapse();
+      setIsLeftSidebarOpen(false);
+    }
+  };
+
+  const expandLeftSidebar = () => {
+    const panel = leftSidebarRef.current;
+    if (panel) {
+      panel.expand();
+      setIsLeftSidebarOpen(true);
+    }
+  };
+
   return (
     <div className="w-screen h-screen flex flex-col">
       <header className="flex justify-between items-center px-4 py-2">
-        <div className="text-base font-medium">Studio</div>
+        <div className="flex gap-2 items-center">
+          <Logo />
+          <div className="text-[15px] mb-0.5">Studio</div>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost">
@@ -51,18 +77,27 @@ function App() {
           className="h-full w-full border border-border rounded-xl bg-card"
         >
           {/* Left Sidebar */}
-          <ResizablePanel defaultSize={25} minSize={15} maxSize={40}>
-            <Sidebar />
+          <ResizablePanel
+            ref={leftSidebarRef}
+            defaultSize={20}
+            minSize={15}
+            maxSize={35}
+            collapsible
+          >
+            <LeftSidebar handleClose={collapseLeftSidebar} />
           </ResizablePanel>
 
           <ResizableHandle />
 
-          {/* Right Content Area */}
-          <ResizablePanel defaultSize={75}>
+          {/* Middle Content Area */}
+          <ResizablePanel defaultSize={60} minSize={30}>
             <ResizablePanelGroup direction="vertical" className="h-full">
               {/* SQL Editor - Top Half */}
               <ResizablePanel defaultSize={50} minSize={20}>
-                <MonacoEditor />
+                <MonacoEditor
+                  isLeftSidebarOpen={isLeftSidebarOpen}
+                  handleExpandLeftSidebar={expandLeftSidebar}
+                />
               </ResizablePanel>
 
               <ResizableHandle />
@@ -72,6 +107,13 @@ function App() {
                 <ResultsSection />
               </ResizablePanel>
             </ResizablePanelGroup>
+          </ResizablePanel>
+
+          <ResizableHandle />
+
+          {/* Right Sidebar */}
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
+            <RightSidebar />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
