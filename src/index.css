@@ -1,6 +1,23 @@
 @import "tailwindcss";
 
+:root {
+  --color-background: var(--color-neutral-50);
+  --color-text: var(--color-neutral-950);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--color-neutral-950);
+    --color-text: var(--color-neutral-50);
+  }
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-text: var(--color-text);
+}
+
 body {
-  background-color: var(--color-neutral-950);
-  color: var(--color-neutral-50);
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
